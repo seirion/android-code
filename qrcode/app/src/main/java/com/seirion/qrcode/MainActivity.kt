@@ -8,6 +8,14 @@ import android.util.Log
 import android.widget.Toast
 import com.google.zxing.integration.android.IntentIntegrator
 import com.seirion.qrcode.databinding.ActivityMainBinding
+import com.google.zxing.WriterException
+import android.graphics.Bitmap
+import android.graphics.Color
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.common.BitMatrix
+import com.google.zxing.qrcode.QRCodeWriter
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setDataBinding()
         binding.button.setOnClickListener { openQrScan() }
+        binding.generate.setOnClickListener { generate() }
     }
 
     private fun setDataBinding() {
@@ -25,6 +34,33 @@ class MainActivity : AppCompatActivity() {
 
     private fun openQrScan() {
         IntentIntegrator(this).initiateScan()
+    }
+
+    private fun generate() {
+        try {
+            val qrCodeWriter = QRCodeWriter()
+            val bitmap = toBitmap(qrCodeWriter.encode(binding.input.text.toString(), BarcodeFormat.QR_CODE, 200, 200))
+            binding.image.setImageBitmap(bitmap)
+        } catch (e: WriterException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun toBitmap(matrix: BitMatrix): Bitmap {
+        val height = matrix.height
+        val width = matrix.width
+        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val color = when (matrix.get(x, y)) {
+                    true -> Color.BLACK
+                    else -> Color.WHITE
+                }
+                bmp.setPixel(x, y, color)
+            }
+        }
+        return bmp
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
