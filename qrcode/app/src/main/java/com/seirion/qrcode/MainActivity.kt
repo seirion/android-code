@@ -69,15 +69,13 @@ class MainActivity : AppCompatActivity() {
             if (result == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
             } else {
-                Log.d(TAG, result.contents)
+                Log.d(TAG, "result: ${result.contents}")
                 Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
                 binding.text.text = result.contents
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
-
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     companion object {
