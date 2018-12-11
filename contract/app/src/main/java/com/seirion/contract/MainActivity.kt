@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private fun initUi() {
         scanning.setOnClickListener { scan() }
         openWeb.setOnClickListener { open() }
+        openCodeGenButton.setOnClickListener { CodeGenActivity.start(this) }
     }
 
     private fun scan() {

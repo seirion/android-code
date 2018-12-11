@@ -4,4 +4,6 @@
     <string name="login_title">지문으로 로그인하기</string>
     <string name="scanning">QR 코드 스캔하기</string>
     <string name="open_web">웹페이지 열기</string>
+    <string name="generate_code">QR 코드 생성</string>
+    <string name="input_text">텍스트 입력</string>
 </resources>
