@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,19 +12,33 @@
 
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/scanning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/text"
         android:layout_marginTop="10dp"
-        android:text="main"
+        android:text="@string/scanning"
         android:textColor="#000000"
-        android:textSize="22sp"
-        tools:ignore="HardcodedText"/>
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/scanning"
+        android:layout_marginTop="30dp"
+        android:textColor="#000000"
+        android:textSize="22sp" />
+
+    <Button
+        android:id="@+id/openWeb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:text="@string/open_web"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:visibility="gone" />
 
 </RelativeLayout>

@@ -2,4 +2,6 @@
     <string name="app_name">contract</string>
 
     <string name="login_title">지문으로 로그인하기</string>
+    <string name="scanning">QR 코드 스캔하기</string>
+    <string name="open_web">웹페이지 열기</string>
 </resources>

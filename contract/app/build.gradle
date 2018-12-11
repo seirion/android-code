@@ -44,4 +44,6 @@ dependencies {
     // biometrics
     implementation 'com.github.ajalt.reprint:core:3.3.0@aar' // required: supports marshmallow devices
     implementation 'com.github.ajalt.reprint:rxjava2:3.3.0@aar' // optional: the RxJava 2 interface
+
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 }
