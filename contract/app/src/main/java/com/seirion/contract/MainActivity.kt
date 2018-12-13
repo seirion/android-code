@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -41,9 +42,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+        if (resultCode == RESULT_OK && requestCode == IntentIntegrator.REQUEST_CODE) {
             val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-            if (result == null) {
+            if (result == null || TextUtils.isEmpty(result.contents)) {
                 //Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
             } else {
                 Log.d(TAG, "result: ${result.contents}")
