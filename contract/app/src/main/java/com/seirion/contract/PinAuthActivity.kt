@@ -93,6 +93,7 @@ class PinAuthActivity : AppCompatActivity() {
             State.CONFIRM, State.INPUT, State.RETRY -> {
                 if (inputStr == input.joinToString("")) {
                     if (state == State.CONFIRM) setPinCode()
+                    MainActivity.start(this)
                     finish()
                 } else {
                     state = State.RETRY
