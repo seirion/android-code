@@ -9,14 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.GridLayout
 import com.seirion.contract.R
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 
 open class NumPadView : GridLayout {
 
-    interface OnNumButtonClickListener {
-        fun onClickNumButton(keyName: String)
-    }
-    var onNumButtonClickListener: OnNumButtonClickListener? = null
+    private val keyInput = PublishSubject.create<String>()
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         init()
@@ -38,9 +37,7 @@ open class NumPadView : GridLayout {
 
         for (i in 1..10) {
             val numButton = makeNumButton(i)
-            numButton.setOnClickListener { v ->
-                onNumButtonClickListener?.onClickNumButton((v as TextView).text.toString())
-            }
+            numButton.setOnClickListener { v -> keyInput.onNext((v as TextView).text.toString()) }
             numButton.layoutParams = numButtonLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT)
             addView(numButton)
         }
@@ -48,10 +45,12 @@ open class NumPadView : GridLayout {
         addView(makeEmptyKey(), 9)
 
         val delete = makeDeleteKey()
-        delete.setOnClickListener {
-            onNumButtonClickListener?.onClickNumButton(KEY_BACK)
-        }
+        delete.setOnClickListener { keyInput.onNext(KEY_BACK) }
         addView(delete)
+    }
+
+    fun observeKeyInput(): Observable<String> {
+        return keyInput
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -104,6 +103,6 @@ open class NumPadView : GridLayout {
     companion object {
         private const val COLUMN = 3
         private const val ROW = 4
-        private const val KEY_BACK = "KEY_BACK"
+        const val KEY_BACK = "KEY_BACK"
     }
 }

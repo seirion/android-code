@@ -1,5 +1,6 @@
 package com.seirion.contract
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -7,15 +8,18 @@ import android.preference.PreferenceManager
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.seirion.contract.widget.NumPadView
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_pin_auth.*
 
 
-class PinAuthActivity : AppCompatActivity(), View.OnClickListener {
+class PinAuthActivity : AppCompatActivity() {
 
     private var input = ArrayList<String>()
+    private var inputStr = ""
     private lateinit var state: State
+    private val indicator = ArrayList<View>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,9 +27,31 @@ class PinAuthActivity : AppCompatActivity(), View.OnClickListener {
         initUi()
     }
 
+    @SuppressLint("CheckResult")
     private fun initUi() {
-        state = if (hasPinCode()) State.INPUT else State.CREATE
+        if (hasPinCode()) {
+            state = State.INPUT
+            inputStr = getPinCode()
+        } else {
+            state = State.CREATE
+        }
         setText()
+        for (i in 0 until MAX_NUM) {
+            indicator.add(layoutPin.getChildAt(i))
+        }
+
+        numPadView.observeKeyInput()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d(TAG, "key input: $it")
+                if (it == NumPadView.KEY_BACK) {
+                    delete()
+                } else {
+                    put(it)
+                }
+            }, {
+                Log.e(TAG, "key input error: $it")
+            })
     }
 
     private fun setText() {
@@ -35,6 +61,7 @@ class PinAuthActivity : AppCompatActivity(), View.OnClickListener {
                 State.CONFIRM -> R.string.pin_confirm
                 State.INPUT -> R.string.pin_input
                 State.RETRY -> R.string.pin_retry
+                else -> R.string.pin_create
             }
         )
     }
@@ -44,8 +71,12 @@ class PinAuthActivity : AppCompatActivity(), View.OnClickListener {
         return !TextUtils.isEmpty(prefs.getString(PREF_PIN_CODE,null))
     }
 
+    private fun getPinCode() =
+        PreferenceManager.getDefaultSharedPreferences(applicationContext)
+            .getString(PREF_PIN_CODE, "")!!
+
     private fun setPinCode() {
-        val str = input.reduce { acc, v -> acc + v } .toString()
+        val str = input.joinToString("")
         Log.v(TAG, "pin code: $str")
         PreferenceManager.getDefaultSharedPreferences(applicationContext)
             .edit()
@@ -53,29 +84,40 @@ class PinAuthActivity : AppCompatActivity(), View.OnClickListener {
             .apply()
     }
 
-    private fun userInput(v: View) = 0
-    private fun put(num: Int) {
-        if (input.size < MAX_NUM) input.add(num.toString())
-    }
-    private fun delete() {
-        if (!input.isEmpty()) input.dropLast(1)
-    }
-
-    override fun onClick(v: View?) {
-        if (v is TextView) {
-            Log.d(TAG, "onClick(): ${v.text}")
-            val kind = userInput(v)
-            when (kind) {
-                in 0..9 -> put(kind)
-                DELETE -> delete()
+    private fun switchState() {
+        when (state) {
+            State.CREATE -> {
+                state = State.CONFIRM
+                inputStr = input.joinToString("")
+            }
+            State.CONFIRM, State.INPUT, State.RETRY -> {
+                state = if (inputStr == input.joinToString("")) State.FINISH else State.RETRY
             }
         }
+        setText()
     }
 
+    private fun put(num: String) {
+        if (input.size < MAX_NUM) {
+            indicator[input.size].isSelected = true
+            input.add(num)
+            if (input.size == MAX_NUM) {
+                switchState()
+            }
+        }
+        Log.v(TAG, "put: ${input.joinToString("")}")
+    }
+
+    private fun delete() {
+        if (!input.isEmpty()) {
+            input.removeAt(input.size - 1)
+            indicator[input.size].isSelected = false
+        }
+        Log.v(TAG, "delete: ${input.joinToString("")}")
+    }
 
     companion object {
         private val TAG = PinAuthActivity::class.java.simpleName
-        private const val DELETE = -1
         private const val MAX_NUM = 6
         private const val PREF_PIN_CODE = "PREF_PIN_CODE"
 
@@ -88,7 +130,7 @@ class PinAuthActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     enum class State {
-        CREATE, CONFIRM, INPUT, RETRY
+        CREATE, CONFIRM, INPUT, RETRY, FINISH
     }
 }
 
