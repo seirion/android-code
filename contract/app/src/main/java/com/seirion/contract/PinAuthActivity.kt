@@ -29,6 +29,7 @@ class PinAuthActivity : AppCompatActivity() {
 
     @SuppressLint("CheckResult")
     private fun initUi() {
+        Log.d(TAG, "initial pin code: ${getPinCode()}")
         if (hasPinCode()) {
             state = State.INPUT
             inputStr = getPinCode()
@@ -67,8 +68,7 @@ class PinAuthActivity : AppCompatActivity() {
     }
 
     private fun hasPinCode(): Boolean {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        return !TextUtils.isEmpty(prefs.getString(PREF_PIN_CODE,null))
+        return !TextUtils.isEmpty(getPinCode())
     }
 
     private fun getPinCode() =
@@ -91,10 +91,21 @@ class PinAuthActivity : AppCompatActivity() {
                 inputStr = input.joinToString("")
             }
             State.CONFIRM, State.INPUT, State.RETRY -> {
-                state = if (inputStr == input.joinToString("")) State.FINISH else State.RETRY
+                if (inputStr == input.joinToString("")) {
+                    if (state == State.CONFIRM) setPinCode()
+                    finish()
+                } else {
+                    state = State.RETRY
+                }
             }
         }
         setText()
+        clearUserInput()
+    }
+
+    private fun clearUserInput() {
+        input.clear()
+        indicator.forEach { it.isSelected = false }
     }
 
     private fun put(num: String) {
